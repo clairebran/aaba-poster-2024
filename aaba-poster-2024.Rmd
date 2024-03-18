@@ -1,0 +1,67 @@
+---
+title: "AABA Poster 2024"
+author: "Claire Brandes"
+date: "2024-03-18"
+output: html_document
+---
+
+# Reading in data
+
+```{r}
+library(readr)
+f <- "https://raw.githubusercontent.com/clairebran/aaba-poster-2024/main/aaba-poster-THI.csv"
+d <- read_csv(f, col_names = TRUE)
+```
+
+# Fixing data set so that Contrebandiers and El Harhoura 2 are treated as row names
+
+```{r}
+library(tidyverse)
+(d <- d %>% remove_rownames() %>% column_to_rownames(var = "Site"))
+```
+
+# Converting data frame from wide to long format
+
+```{r}
+d_long <- tidyr::gather(d, Vegetation, Value, -Site)
+```
+
+# PLotting stacked bar chart
+
+```{r}
+(bg <- ggplot(d_long, aes(x = Site, y = Value, fill = Vegetation)) +
+  geom_bar(stat = "identity") +
+  labs(y = "Percent"))
+```
+
+# Changing color scheme
+
+```{r}
+(bg <- bg + scale_fill_manual(values = c("#29452c", "#4a5432", "#678757", "#7aa067", "#9da462", "#e5cd89", "#cca860", "#e08d52", "#df7026", "#b66128", "#925932", "#695836", "#5e5a42")))
+```
+
+# Making background match poster background so it appears transparent 
+
+```{r}
+library(ggtext)
+(bg <- bg + theme(
+  panel.background = element_rect(fill = "#1c1712"),
+  plot.background = element_rect(fill = "#1c1712"),
+  legend.background = element_rect(fill = "#1c1712"),
+  legend.box.background = element_rect(fill = "white"),
+  axis.title.x = element_markdown(color = "white"),
+  axis.title.y = element_markdown(color = "white"),
+  axis.text = element_markdown(color = "white"),
+  axis.ticks = element_line(color = "white"),
+  legend.text = element_markdown(color = "white"),
+  legend.title = element_markdown(color = "#1c1712"),
+  panel.grid = element_line(color = "white"),
+))
+```
+
+# Saving plot as png
+
+```{r}
+ggsave(bg, filename = "output1.png", bg = "transparent")
+```
+
